@@ -1,0 +1,13 @@
+[package]
+name = "many_grid"
+version = "0.1.0"
+edition = "2021"
+authors = ["Cas de Loijer <cdl.0404@gmail.com>"]
+description = "grid management library, with a focus on several grid types, ease of use and performance."
+categories = ["game-development"]
+license = "MIT OR Apache-2.0"
+keywords = ["game", "grid", "gamedev", "bevy"]
+repository = "https://github.com/nuggetInc/many_grid"
+
+[dependencies]
+glam = "0.22.0"
