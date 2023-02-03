@@ -1,4 +1,7 @@
-use std::ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign};
+use std::{
+    fmt::Display,
+    ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign},
+};
 
 /// A coordinate in hexagonal space.
 ///
@@ -336,6 +339,24 @@ impl Neg for Hex {
             q: self.q.neg(),
             r: self.r.neg(),
         }
+    }
+}
+
+impl From<(i32, i32)> for Hex {
+    fn from((q, r): (i32, i32)) -> Self {
+        Self { q, r }
+    }
+}
+
+impl From<[i32; 2]> for Hex {
+    fn from([q, r]: [i32; 2]) -> Self {
+        Self { q, r }
+    }
+}
+
+impl Display for Hex {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "[{}, {}]", self.q, self.r)
     }
 }
 
