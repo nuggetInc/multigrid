@@ -26,3 +26,6 @@
 //! ## Special thanks
 //! - [Hexx](https://github.com/ManevilleF/hexx): For setting a standard
 //! - [RedBlobGames](https://www.redblobgames.com/): For the amazing article
+
+#[cfg(feature = "hexagonal")]
+pub mod hexagonal;

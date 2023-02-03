@@ -11,3 +11,7 @@ repository = "https://github.com/nuggetInc/many_grid"
 
 [dependencies]
 glam = "0.22.0"
+
+[features]
+default = ["hexagonal"]
+hexagonal = []
