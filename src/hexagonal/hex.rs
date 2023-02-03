@@ -136,6 +136,42 @@ impl Hex {
             r: -self.r,
         }
     }
+
+    /// Computes coordinates signed distance from center
+    ///
+    /// See [`Self::ulength`] for the unsigned version
+    #[inline]
+    #[must_use]
+    pub const fn length(self) -> i32 {
+        (self.q.abs() + self.r.abs() + self.s().abs()) / 2
+    }
+
+    /// Computes coordinates unsigned distance from center
+    ///
+    /// See [`Self::length`] for the signed version
+    #[inline]
+    #[must_use]
+    pub const fn ulength(self) -> u32 {
+        (self.q.unsigned_abs() + self.r.unsigned_abs() + self.s().unsigned_abs()) / 2
+    }
+
+    /// Computes coordinates signed distance from another hex
+    ///
+    /// See [`Self::udistance`] for the unsigned version
+    #[inline]
+    #[must_use]
+    pub const fn distance(self, other: Self) -> i32 {
+        self.const_sub(other).length()
+    }
+
+    /// Computes coordinates unsigned distance from another hex
+    ///
+    /// See [`Self::distance`] for the signed version
+    #[inline]
+    #[must_use]
+    pub const fn udistance(self, other: Self) -> u32 {
+        self.const_sub(other).ulength()
+    }
 }
 
 impl Add<Self> for Hex {
@@ -269,5 +305,23 @@ mod tests {
         assert_eq!(Hex::ZERO.const_neg(), Hex::ZERO);
         assert_eq!(Hex::ONE.const_neg(), Hex::new(-1, -1));
         assert_eq!((Hex::ONE.const_neg()).const_neg(), Hex::ONE);
+    }
+
+    #[test]
+    fn length() {
+        assert_eq!(Hex::ZERO.length(), 0);
+        assert_eq!(Hex::ZERO.ulength(), 0);
+        assert_eq!(Hex::ONE.length(), 2);
+        assert_eq!(Hex::ONE.ulength(), 2);
+    }
+
+    #[test]
+    fn distance() {
+        assert_eq!(Hex::ZERO.distance(Hex::ZERO), 0);
+        assert_eq!(Hex::ZERO.udistance(Hex::ZERO), 0);
+        assert_eq!(Hex::ONE.distance(Hex::ONE), 0);
+        assert_eq!(Hex::ONE.udistance(Hex::ONE), 0);
+        assert_eq!(Hex::ONE.distance(Hex::ZERO), 2);
+        assert_eq!(Hex::ONE.udistance(Hex::ZERO), 2);
     }
 }
