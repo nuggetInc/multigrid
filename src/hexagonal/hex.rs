@@ -59,6 +59,57 @@ impl Hex {
     /// Hexagon diagonal towards `s`
     pub const SS: Self = Self::new(-1, -1);
 
+    /// Collection of all directions
+    ///
+    /// ```txt
+    ///         +---+
+    ///        /     \
+    ///   +---+  6th  +---+
+    ///  /     \     /     \
+    /// +  5th  +---+  1st  +
+    ///  \     /     \     /
+    ///   +---+  0,0  +---+
+    ///  /     \     /     \
+    /// +  4th  +---+  2nd  +
+    ///  \     /     \     /
+    ///   +---+  3rd  +---+
+    ///        \     /
+    ///         +---+
+    /// ```
+    ///
+    /// Starts at `Hex(1, -1)` goes clockwise to `Hex(-1, 1)`
+    pub const DIRECTIONS: [Self; 6] = [Self::QR, Self::QS, Self::RS, Self::RQ, Self::SQ, Self::SR];
+
+    /// Collection of all diagonals
+    ///
+    /// ```txt
+    ///           \     /
+    ///       5th  +---+  6th
+    ///     \     /     \     /
+    ///      +---+       +---+
+    ///     /     \     /     \
+    /// ---+       +---+       +---
+    ///     \     /     \     /
+    /// 4th  +---+  0,0  +---+  1st
+    ///     /     \     /     \
+    /// ---+       +---+       +---
+    ///     \     /     \     /
+    ///      +---+       +---+
+    ///     /     \     /     \
+    ///       3rd  +---+  2nd  
+    ///           /     \
+    /// ```
+    ///
+    /// Starts at `Hex(2, -1)` goes clockwise to `Hex(1, -2)`
+    pub const DIAGONALS: [Self; 6] = [
+        Self::QQ,
+        Self::SS.const_neg(),
+        Self::RR,
+        Self::QQ.const_neg(),
+        Self::SS,
+        Self::RR.const_neg(),
+    ];
+
     /// Create a hexagon from axial coordinates, alias to `new_axial`
     #[inline]
     #[must_use]
@@ -171,6 +222,44 @@ impl Hex {
     #[must_use]
     pub const fn udistance(self, other: Self) -> u32 {
         self.const_sub(other).ulength()
+    }
+
+    /// Get a neighbor by index
+    /// For order and direction see [`Self::DIRECTIONS`]
+    ///
+    /// #Panics
+    /// Panics if index is 6 or higher
+    #[inline]
+    #[must_use]
+    pub fn neighbor(self, index: usize) -> Self {
+        self + Self::DIRECTIONS[index]
+    }
+
+    /// Get all neigbors of this hex
+    /// For order and direction see [`Self::DIRECTIONS`]
+    #[inline]
+    #[must_use]
+    pub fn neighbors(self) -> [Self; 6] {
+        Self::DIRECTIONS.map(|h| self + h)
+    }
+
+    /// Get a diagonal neighbor by index
+    /// For order and direction see [`Self::DIAGONALS`]
+    ///
+    /// #Panics
+    /// Panics if index is 6 or higher
+    #[inline]
+    #[must_use]
+    pub fn diagonal_neighbor(self, index: usize) -> Self {
+        self + Self::DIAGONALS[index]
+    }
+
+    /// Get all diagonal neigbors of this hex
+    /// For order and direction see [`Self::DIAGONALS`]
+    #[inline]
+    #[must_use]
+    pub fn diagonal_neighbors(self) -> [Self; 6] {
+        Self::DIAGONALS.map(|h| self + h)
     }
 }
 
@@ -323,5 +412,46 @@ mod tests {
         assert_eq!(Hex::ONE.udistance(Hex::ONE), 0);
         assert_eq!(Hex::ONE.distance(Hex::ZERO), 2);
         assert_eq!(Hex::ONE.udistance(Hex::ZERO), 2);
+    }
+
+    #[test]
+    fn neigbors() {
+        assert_eq!(Hex::ZERO.neighbor(0), Hex::DIRECTIONS[0]);
+        assert_eq!(Hex::ZERO.neighbor(1), Hex::DIRECTIONS[1]);
+        assert_eq!(Hex::ZERO.neighbor(1).neighbor(4), Hex::ZERO);
+
+        assert_eq!(
+            Hex::ONE.neighbors(),
+            [
+                Hex::new(2, 0),
+                Hex::new(2, 1),
+                Hex::new(1, 2),
+                Hex::new(0, 2),
+                Hex::new(0, 1),
+                Hex::new(1, 0)
+            ]
+        );
+    }
+
+    #[test]
+    fn diagonals() {
+        assert_eq!(Hex::ZERO.diagonal_neighbor(0), Hex::DIAGONALS[0]);
+        assert_eq!(Hex::ZERO.diagonal_neighbor(1), Hex::DIAGONALS[1]);
+        assert_eq!(
+            Hex::ZERO.diagonal_neighbor(1).diagonal_neighbor(4),
+            Hex::ZERO
+        );
+
+        assert_eq!(
+            Hex::ONE.diagonal_neighbors(),
+            [
+                Hex::new(3, 0),
+                Hex::new(2, 2),
+                Hex::new(0, 3),
+                Hex::new(-1, 2),
+                Hex::new(0, 0),
+                Hex::new(2, -1)
+            ]
+        );
     }
 }
