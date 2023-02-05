@@ -184,6 +184,8 @@ impl Hex {
     }
 
     /// const version of [`Neg`]
+    ///
+    /// The same as [`Self::reflect_over`] but over [`Hex::ZERO`]
     pub const fn const_neg(self) -> Self {
         Self {
             q: -self.q,
@@ -263,6 +265,100 @@ impl Hex {
     #[must_use]
     pub fn diagonal_neighbors(self) -> [Self; 6] {
         Self::DIAGONALS.map(|h| self + h)
+    }
+
+    /// Rotate hex counter clockwise
+    #[inline]
+    #[must_use]
+    pub const fn rotate_left(self) -> Self {
+        Self {
+            q: -self.s(),
+            r: -self.q,
+        }
+    }
+
+    /// Rotate hex counter clockwise around `center`
+    #[inline]
+    #[must_use]
+    pub const fn rotate_left_around(self, center: Self) -> Self {
+        self.const_sub(center).rotate_left().const_add(center)
+    }
+
+    /// Rotate hex clockwise
+    #[inline]
+    #[must_use]
+    pub const fn rotate_right(self) -> Self {
+        Self {
+            q: -self.r,
+            r: -self.s(),
+        }
+    }
+
+    /// Rotate hex clockwise around `center`
+    #[inline]
+    #[must_use]
+    pub const fn rotate_right_around(self, center: Self) -> Self {
+        self.const_sub(center).rotate_right().const_add(center)
+    }
+
+    /// Reflect hex over `center`
+    ///
+    /// The same as [`Self::const_neg`] but not over [`Hex::ZERO`]
+    #[inline]
+    #[must_use]
+    pub const fn reflect_over(self, center: Hex) -> Self {
+        self.const_sub(center).const_neg().const_add(center)
+    }
+
+    /// Reflect hex across the `q` axis over [`Hex::ZERO`]
+    #[inline]
+    #[must_use]
+    pub const fn reflect_q(self) -> Self {
+        Self {
+            q: self.q,
+            r: self.s(),
+        }
+    }
+
+    /// Reflect hex across the `q` axis over `center`
+    #[inline]
+    #[must_use]
+    pub const fn reflect_q_over(self, center: Self) -> Self {
+        self.const_sub(center).reflect_q().const_add(center)
+    }
+
+    /// Reflect hex across the `r` axis over [`Hex::ZERO`]
+    #[inline]
+    #[must_use]
+    pub const fn reflect_r(self) -> Self {
+        Self {
+            q: self.s(),
+            r: self.r,
+        }
+    }
+
+    /// Reflect hex across the `r` axis over `center`
+    #[inline]
+    #[must_use]
+    pub const fn reflect_r_over(self, center: Self) -> Self {
+        self.const_sub(center).reflect_r().const_add(center)
+    }
+
+    /// Reflect hex across the `s` axis over [`Hex::ZERO`]
+    #[inline]
+    #[must_use]
+    pub const fn reflect_s(self) -> Self {
+        Self {
+            q: self.r,
+            r: self.q,
+        }
+    }
+
+    /// Reflect hex across the `s` axis over `center`
+    #[inline]
+    #[must_use]
+    pub const fn reflect_s_over(self, center: Self) -> Self {
+        self.const_sub(center).reflect_s().const_add(center)
     }
 }
 
@@ -474,5 +570,23 @@ mod tests {
                 Hex::new(2, -1)
             ]
         );
+    }
+
+    #[test]
+    fn reflection() {
+        assert_eq!(Hex::ONE.reflect_over(Hex::ZERO), Hex::new(-1, -1));
+        assert_eq!(Hex::new(2, 1).reflect_over(Hex::ONE), Hex::new(0, 1));
+
+        assert_eq!(Hex::new(2, 1).reflect_q(), Hex::new(2, -3));
+        assert_eq!(Hex::new(2, 1).reflect_q_over(Hex::ZERO), Hex::new(2, -3));
+        assert_eq!(Hex::new(2, 1).reflect_q_over(Hex::ONE), Hex::new(2, 0));
+
+        assert_eq!(Hex::new(2, 1).reflect_r(), Hex::new(-3, 1));
+        assert_eq!(Hex::new(2, 1).reflect_r_over(Hex::ZERO), Hex::new(-3, 1));
+        assert_eq!(Hex::new(2, 1).reflect_r_over(Hex::ONE), Hex::new(0, 1));
+
+        assert_eq!(Hex::new(2, 1).reflect_s(), Hex::new(1, 2));
+        assert_eq!(Hex::new(2, 1).reflect_s_over(Hex::ZERO), Hex::new(1, 2));
+        assert_eq!(Hex::new(2, 1).reflect_s_over(Hex::ONE), Hex::new(1, 2));
     }
 }
