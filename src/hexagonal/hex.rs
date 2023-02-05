@@ -3,6 +3,8 @@ use std::{
     ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign},
 };
 
+use super::FHex;
+
 /// A coordinate in hexagonal space.
 ///
 /// A way to look at hexagonal grids is to see that there are three primary axes, unlike the two we have for rectangular grids.
@@ -306,7 +308,7 @@ impl Hex {
     /// The same as [`Self::const_neg`] but not over [`Hex::ZERO`]
     #[inline]
     #[must_use]
-    pub const fn reflect_over(self, center: Hex) -> Self {
+    pub const fn reflect_over(self, center: Self) -> Self {
         self.const_sub(center).const_neg().const_add(center)
     }
 
@@ -435,6 +437,12 @@ impl Neg for Hex {
             q: self.q.neg(),
             r: self.r.neg(),
         }
+    }
+}
+
+impl From<FHex> for Hex {
+    fn from(value: FHex) -> Self {
+        value.round()
     }
 }
 
